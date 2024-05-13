@@ -12,7 +12,7 @@ const getNotes = require("./note.js");
 const msg = getNotes();
 console.log(msg);
 
-const sum = add(3, 5);
+const sum = add(3, 4);
 console.log(sum);
 
 // fs.writeFileSync("notes.txt", "This file was created by No dejs ");
