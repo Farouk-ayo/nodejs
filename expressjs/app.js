@@ -1,9 +1,21 @@
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
+const { engine } = require("express-handlebars");
 const app = express();
 
-app.set("view engine", "pug");
+// the default file layout for hbs is main.hbs
+app.engine(
+  ".hbs",
+  engine({
+    extname: "hbs",
+    defaultLayout: "main-layout",
+    layoutsDir: "views/layouts",
+  })
+);
+
+app.set("view engine", "hbs");
+// app.set("view engine", "pug");
 app.set("views", "views");
 
 // const adminRoutes = require("./routes/admin");

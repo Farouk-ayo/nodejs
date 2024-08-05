@@ -16,9 +16,20 @@ router.get("/add-product", (req, res, next) => {
   //   next(); // allows the request to continue to the next middlewate in the line
   // if you don't call next, the request will stop here
   // res.sendFile(path.join(__dirname, "../", "views", "add-product.html"));
+
+  // FOR PUG
+  // res.render("add-product", {
+  //   pageTitle: "Add Product",
+  //   path: "/admin/add-product",
+  // });
+
+  // FOR HBS
   res.render("add-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
+    formCSS: true,
+    productCSS: true,
+    activeAddProduct: true,
   });
 });
 
