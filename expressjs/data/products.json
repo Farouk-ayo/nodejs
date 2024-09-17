@@ -1,1 +1,8 @@
-[{"title":"farouk","imageUrl":"imga","description":"Farouk profile","price":"232.23"}]
+[
+  {
+    "title": "devfarouk",
+    "imageUrl": "https://devfarouk.vercel.app/_next/image?url=%2Fprofile.webp&w=1920&q=75",
+    "description": "frontend dev",
+    "price": "100"
+  }
+]
