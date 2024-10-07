@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@types/sequelize": "^4.28.20",
     "nodemon": "^3.1.4"
   },
   "name": "node-1",
@@ -35,6 +36,7 @@
     "pug": "^3.0.3",
     "readdirp": "^3.6.0",
     "semver": "^7.6.3",
+    "sequelize": "^6.37.4",
     "simple-update-notifier": "^2.0.0",
     "supports-color": "^5.5.0",
     "to-regex-range": "^5.0.1",
