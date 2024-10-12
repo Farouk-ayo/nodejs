@@ -13,15 +13,32 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  Product.create({
-    title: title,
-    price: price,
-    imageUrl: imageUrl,
-    description: description,
-  })
+
+  // Product.create({
+  //   title: title,
+  //   price: price,
+  //   imageUrl: imageUrl,
+  //   description: description,
+  //   userId:req.user.id
+  // })
+  //   .then((result) => {
+  //     console.log(result);
+  //     return res.redirect("/admin/products");
+  //   })
+  //   .catch((err) => console.log(err));
+
+  // or
+  // from sequelize create product automatically getting the user id
+  req.user
+    .createProduct({
+      title: title,
+      price: price,
+      imageUrl: imageUrl,
+      description: description,
+    })
     .then((result) => {
       console.log(result);
-      res.redirect("/admin/products");
+      return res.redirect("/admin/products");
     })
     .catch((err) => console.log(err));
 };
@@ -32,8 +49,14 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect("/");
   }
   const prodId = req.params.productId;
-  Product.findByPk(prodId)
-    .then((product) => {
+  // Product.findByPk(prodId)
+  // or
+  // for a specific user use this
+  req.user
+    .getProducts({ where: { id: prodId } })
+    .then((products) => {
+      console.log(products);
+      const product = products[0];
       if (!product) {
         return res.redirect("/");
       }
@@ -83,7 +106,10 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  // Product.findAll()
+  // or get all product for a particular user
+  req.user
+    .getProducts()
     .then((products) => {
       res.render("admin/products", {
         prods: products,
