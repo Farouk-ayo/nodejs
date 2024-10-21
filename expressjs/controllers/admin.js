@@ -1,7 +1,4 @@
-const mongodb = require("mongodb");
 const Product = require("../models/product");
-
-const ObjectId = mongodb.ObjectId;
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -17,18 +14,17 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
 
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    null,
-    req.user._id
-  );
+  const product = new Product({
+    title: title,
+    price: price,
+    description: description,
+    imageUrl: imageUrl,
+  });
 
   product
     .save()
     .then((result) => {
+      console.log("created product");
       return res.redirect("/admin/products");
     })
     .catch((err) => console.log(err));
@@ -61,16 +57,15 @@ exports.postEditProduct = (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedPrice = req.body.price;
   const updatedDesc = req.body.description;
+  Product.findById(prodId)
+    .then((product) => {
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.description = updatedDesc;
+      product.imageUrl = updatedImageUrl;
 
-  const product = new Product(
-    updatedTitle,
-    updatedPrice,
-    updatedDesc,
-    updatedImageUrl,
-    new ObjectId(prodId)
-  );
-  return product
-    .save()
+      return product.save();
+    })
     .then((result) => {
       console.log("UPDATED PRODUCT");
       res.redirect("/admin/products");
@@ -80,7 +75,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId)
+  Product.findByIdAndDelete(prodId)
     .then((result) => {
       console.log("DESTROYED PRODUCT");
       res.redirect("/admin/products");
@@ -89,7 +84,7 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("admin/products", {
         prods: products,
