@@ -71,66 +71,72 @@ exports.postLogin = (req, res, next) => {
     });
   }
 
-  User.findOne({ email: email }).then((user) => {
-    if (!user) {
-      return res.status(422).render("auth/login", {
-        path: "/login",
-        pageTitle: "Login",
-        errorMessage: "Invalid email or password",
-        oldInput: {
-          email: email,
-          password: password,
-        },
-        validationErrors: [],
-      });
-    }
-    // bcrypt
-    //   .compare(password, user.password)
-    //   .then((doMatch) => {
-    //     if (doMatch) {
-    //       req.session.isLoggedIn = true;
-    //       req.session.user = user;
-    //       return req.session.save((err) => {
-    //         console.log(err);
-    //         res.redirect("/");
-    //       });
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     res.redirect("/login");
-    //   });
-    bcrypt
-      .compare(password, user.password)
-      .then((doMatch) => {
-        if (doMatch) {
-          req.session.isLoggedIn = true;
-          req.session.user = user;
-          return req.session.save((err) => {
-            if (err) {
-              console.log("Session Save Error:", err);
-              return res.redirect("/login");
-            }
-            res.redirect("/");
-          });
-        }
-        // Add this missing response for incorrect password
+  User.findOne({ email: email })
+    .then((user) => {
+      if (!user) {
         return res.status(422).render("auth/login", {
           path: "/login",
           pageTitle: "Login",
-          errorMessage: "Invalid password",
+          errorMessage: "Invalid email or password",
           oldInput: {
             email: email,
             password: password,
           },
           validationErrors: [],
         });
-      })
-      .catch((err) => {
-        console.log(err);
-        res.redirect("/login");
-      });
-  });
+      }
+      // bcrypt
+      //   .compare(password, user.password)
+      //   .then((doMatch) => {
+      //     if (doMatch) {
+      //       req.session.isLoggedIn = true;
+      //       req.session.user = user;
+      //       return req.session.save((err) => {
+      //         console.log(err);
+      //         res.redirect("/");
+      //       });
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //     res.redirect("/login");
+      //   });
+      bcrypt
+        .compare(password, user.password)
+        .then((doMatch) => {
+          if (doMatch) {
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save((err) => {
+              if (err) {
+                console.log("Session Save Error:", err);
+                return res.redirect("/login");
+              }
+              res.redirect("/");
+            });
+          }
+          // Add this missing response for incorrect password
+          return res.status(422).render("auth/login", {
+            path: "/login",
+            pageTitle: "Login",
+            errorMessage: "Invalid password",
+            oldInput: {
+              email: email,
+              password: password,
+            },
+            validationErrors: [],
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.redirect("/login");
+        });
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
@@ -171,9 +177,11 @@ exports.postSignup = (req, res, next) => {
         html: "<h1>You successfully signed up!</h1>",
       });
     })
-    .catch((err) => {  const error = new Error(err);
+    .catch((err) => {
+      const error = new Error(err);
       error.httpStatusCode = 500;
-      return next(error);});
+      return next(error);
+    });
 };
 
 exports.postLogout = (req, res, next) => {
@@ -230,8 +238,8 @@ exports.postReset = (req, res, next) => {
       })
       .catch((err) => {
         const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   });
 };

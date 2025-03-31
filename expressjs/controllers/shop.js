@@ -1,5 +1,8 @@
 const Product = require("../models/product");
 const Order = require("../models/order");
+const fs = require("fs");
+const path = require("path");
+const PDFDocument = require("pdfkit");
 
 exports.getProducts = (req, res, next) => {
   Product.find()
@@ -143,5 +146,81 @@ exports.getOrders = (req, res, next) => {
       const error = new Error(err);
       error.httpStatusCode = 500;
       return next(error);
+    });
+};
+
+exports.getInvoice = (req, res, next) => {
+  const orderId = req.params.orderId;
+  Order.findById(orderId)
+    .then((order) => {
+      if (!order) {
+        return next(new Error("No order found."));
+      }
+      if (order.user.userId.toString() !== req.user._id.toString()) {
+        return next(new Error("Unauthorized"));
+      }
+      const invoiceName = "invoice-" + orderId + ".pdf";
+      const invoicePath = path.join("data", "invoices", invoiceName);
+
+      // using pdfkit
+      const pdfDoc = new PDFDocument();
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        'inline; filename="' + invoiceName + '"'
+      );
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      pdfDoc.pipe(res);
+      pdfDoc.fontSize(26).text("Invoice", {
+        underline: true,
+        align: "center",
+      });
+      pdfDoc.text("Order ID: " + orderId);
+      pdfDoc.text("---------------------");
+      let totalPrice = 0;
+      pdfDoc.text("Products:");
+      order.products.forEach((product) => {
+        totalPrice += product.product.price * product.quantity;
+        pdfDoc
+          .fontSize(14)
+          .text(
+            product.product.title +
+              " - " +
+              product.quantity +
+              " x " +
+              "$" +
+              product.product.price
+          );
+      });
+      pdfDoc.text("---------------------");
+      pdfDoc.fontSize(20).text("Total Price: " + totalPrice);
+      pdfDoc.text("Thank you for your order!");
+      pdfDoc.text("---------------------");
+      pdfDoc.text("This is a computer-generated invoice.");
+      pdfDoc.text("---------------------");
+      pdfDoc.text("Generated on: " + new Date().toLocaleString());
+      pdfDoc.text("---------------------");
+      pdfDoc.text("Thank you for shopping with us!");
+      pdfDoc.text("---------------------");
+      pdfDoc.text("If you have any questions, please contact us.");
+      pdfDoc.text("---------------------");
+      pdfDoc.end();
+      // fs.readFile(invoicePath, (err, data) => {
+      //   if (err) {
+      //     return next(err);
+      //   }
+      //   res.setHeader("Content-Type", "application/pdf");
+      //   res.setHeader(
+      //     "Content-Disposition",
+      //     'inline; filename="' + invoiceName + '"'
+      //   );
+      //   res.send(data);
+      // });
+      // const file = fs.createReadStream(invoicePath);
+
+      // file.pipe(res);
+    })
+    .catch((err) => {
+      next(err);
     });
 };

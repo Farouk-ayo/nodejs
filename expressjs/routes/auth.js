@@ -18,7 +18,7 @@ router.post(
       .withMessage("please enter a Valid Email")
       .normalizeEmail(),
     body("password", "Password has to be valid.")
-      .isLength({ min: 5 })
+      .isLength({ min: 3 })
       .isString()
       .trim(),
   ],
@@ -53,7 +53,8 @@ router.post(
     body("password")
       .isLength({ min: 5 })
       .withMessage("Password must be at least 5 characters")
-      .isAlphanumeric()
+      // .isAlphanumeric()
+      .matches(/^[a-zA-Z0-9!@#$%^&*()_+=-]*$/)
       .withMessage("Password must contain only numbers and letters")
       .trim(),
     body("confirmPassword").custom((value, { req }) => {
