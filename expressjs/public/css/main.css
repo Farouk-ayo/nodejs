@@ -261,3 +261,34 @@ form {
     width: 30rem;
   }
 }
+
+.pagination {
+  text-align: center;
+  margin: 2rem auto;
+}
+
+.pagination a {
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid #00695c;
+  color: #00695c;
+  background: white;
+  border-radius: 3px;
+}
+
+.pagination a:hover,
+.pagination a:active,
+.pagination a.active {
+  background-color: #00695c;
+  color: white;
+}
+.pagination__item--active a {
+  background-color: #00695c;
+  color: white;
+}
+.pagination__item--disabled a {
+  background-color: #ccc;
+  color: white;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
