@@ -62,7 +62,16 @@ const App = () => {
   const loginHandler = (event, authData) => {
     event.preventDefault();
     setAuthLoading(true);
-    fetch("URL")
+    fetch("http://localhost:8080/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: authData.email,
+        password: authData.password,
+      }),
+    })
       .then((res) => {
         if (res.status === 422) {
           throw new Error("Validation failed.");

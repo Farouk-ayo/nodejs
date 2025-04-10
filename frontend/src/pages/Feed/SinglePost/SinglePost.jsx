@@ -22,7 +22,11 @@ class SinglePost extends Component {
   componentDidMount() {
     const postId = this.props.params.postId;
     console.log(postId);
-    fetch("http://localhost:8080/feed/post/" + postId)
+    fetch("http://localhost:8080/feed/post/" + postId, {
+      headers: {
+        Authorization: "Bearer " + this.props.token,
+      },
+    })
       .then((res) => {
         console.log(res);
         if (res.status !== 200) {
