@@ -4,12 +4,22 @@ const path = require("path");
 const fs = require("fs");
 
 exports.getPosts = (req, res) => {
+  const currentPage = +req.query.page || 1;
+  const perPage = +req.query.perPage || 2;
+  let totalItems;
   Post.find()
+    .countDocuments()
+    .then((count) => {
+      totalItems = count;
+      return Post.find()
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage);
+    })
     .then((posts) => {
       res.status(200).json({
         message: "Fetched posts successfully.",
         posts: posts,
-        totalItems: posts.length,
+        totalItems: totalItems,
       });
     })
     .catch((err) => {
