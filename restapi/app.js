@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const feedRoutes = require("./routes/feed");
-const authRoutes = require("./routes/auth");
+
 const mongoose = require("mongoose");
 const multer = require("multer");
 const path = require("path");
