@@ -6,6 +6,7 @@ const multer = require("multer");
 const path = require("path");
 const MONGODB_URL =
   "mongodb+srv://Faroukayo:Faroukayo@cluster0.2tlgmgj.mongodb.net/feeds?retryWrites=true&w=majority&appName=Cluster0";
+const { graphqlHTTP } = require("express-graphql");
 const app = express();
 
 const fileStorage = multer.diskStorage({
@@ -46,6 +47,15 @@ app.use((req, res, next) => {
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
+});
+
+app.use("/graphql", (req, res, next) => {
+  graphqlHTTP({
+    schema: require("./graphql/schema"),
+    rootValue: require("./graphql/resolvers"),
+    graphiql: true,
+    context: { request: req, response: res },
+  })(req, res, next);
 });
 
 app.use((error, req, res, next) => {
