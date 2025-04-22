@@ -1,47 +1,50 @@
 const { buildSchema } = require("graphql");
 
 module.exports = buildSchema(`  
-    type Query {    
-        getAllFeeds: [Feed!]!
-        getFeed(id: ID!): Feed!
+type Post {
+    _id: ID!
+    title: String!
+    content: String!
+    imageUrl: String!
+    creator: User!
+    createdAt: String!
+    updatedAt: String!
+}
+ 
+type User {
+    _id: ID!
+    name: String!
+    email: String!
+    password: String
+    status:String!
+    posts: [Post!]
+}
+input UserInputData {
+    name: String!
+    email: String!
+    password: String!
+}
+    input PostInputData {
+    title: String!
+    content: String!
+    imageUrl:String!
+}
+ type AuthData {
+    token: String!
+    userId: String!
     }
-    type Mutation {
-        createFeed(title: String!, content: String!, imageUrl: String!): Feed!
-        updateFeed(id: ID!, title: String, content: String, imageUrl: String): Feed!
-        deleteFeed(id: ID!): Feed!
-    }
-    type Feed {
-        _id: ID!
-        title: String!
-        content: String!
-        imageUrl: String!
-        createdAt: String!
-        updatedAt: String!
-    }
-    type User {
-        _id: ID!
-        name: String!
-        email: String!
-        password: String!
-        createdAt: String!
-        updatedAt: String!
-    }       
-    type AuthData {
-        userId: ID!
-        token: String!
-        tokenExpiration: Int!
-    }
-    type Subscription {
-        feedCreated: Feed!
-    }
-    type RootQuery {
-        login(email: String!, password: String!): AuthData!
-    }
-    type RootMutation {
-        createUser(name: String!, email: String!, password: String!): User!
-    }
+
+type RootQuery {
+    login (email: String!, password: String!): AuthData!
+}
+
+type RootMutation {
+    createUser(userInput: UserInputData): User!
+    createPost(postInput: PostInputData): Post!
+}
     schema {
-        query: RootQuery
+        query: RootQuery 
         mutation: RootMutation
     }
+ 
 `);

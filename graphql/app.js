@@ -46,6 +46,9 @@ app.use((req, res, next) => {
     "GET, POST, PUT, PATCH, DELETE"
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
   next();
 });
 
@@ -54,7 +57,16 @@ app.use("/graphql", (req, res, next) => {
     schema: require("./graphql/schema"),
     rootValue: require("./graphql/resolvers"),
     graphiql: true,
-    context: { request: req, response: res },
+    customFormatErrorFn: (err) => {
+      if (err.originalError) {
+        const data = err.originalError.data;
+        const message = err.message || "An error occurred.";
+        const code = err.originalError.code || 500;
+        return { message: message, status: code, data: data };
+      }
+      return { message: err.message || "An error occurred.", status: 500 };
+    },
+    // context: { request: req, response: res },
   })(req, res, next);
 });
 
