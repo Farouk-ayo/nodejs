@@ -1,23 +1,34 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-
 const mongoose = require("mongoose");
 const multer = require("multer");
 const path = require("path");
 const MONGODB_URL =
   "mongodb+srv://Faroukayo:Faroukayo@cluster0.2tlgmgj.mongodb.net/feeds?retryWrites=true&w=majority&appName=Cluster0";
 const { graphqlHTTP } = require("express-graphql");
+const auth = require("./middleware/auth");
 const app = express();
+const { clearImage } = require("./util/file");
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(
-      null,
-      new Date().toISOString().replace(/:/g, "-") + "-" + file.originalname
-    );
+    cb(null, new Date().toISOString() + "-" + file.originalname);
   },
 });
 
@@ -39,17 +50,22 @@ app.use(
 ); // application/json
 app.use("/images", express.static(path.join(__dirname, "images"))); // Serve images from the images directory
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
+app.use(auth);
+app.put("/post-image", (req, res, next) => {
+  if (!req.isAuth) {
+    throw new Error("Not authenticated.");
   }
-  next();
+  if (!req.file) {
+    return res.status(200).json({ message: "No file provided!" });
+  }
+  if (req.body.oldPath) {
+    clearImage(req.body.oldPath);
+  }
+  console.log(req);
+  return res.status(201).json({
+    message: "File stored.",
+    filePath: req.file.path.replace("\\", "/"),
+  });
 });
 
 app.use("/graphql", (req, res, next) => {
