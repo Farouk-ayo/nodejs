@@ -17,7 +17,7 @@ type User {
     email: String!
     password: String
     status:String!
-    posts: [Post!]
+    posts: [Post!]!
 }
 input UserInputData {
     name: String!
@@ -50,7 +50,7 @@ type RootMutation {
     createUser(userInput: UserInputData): User!
     createPost(postInput: PostInputData): Post!
     updatePost(id: ID!, postInput: PostInputData): Post!
-    deletePost(id: ID!): Boolean!
+    deletePost(id: ID!): Boolean
     updateStatus(status: String!): User!
     
 }
